@@ -1,5 +1,8 @@
 package com.apache.spark.stuff;
 
+import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.unix_timestamp;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
@@ -32,41 +35,11 @@ public class Main {
     Dataset<Row> historicalPrices =
         sparkSession.read().option("header", true).csv("src/main/resources/harmony.csv");
     // Display all the rows.
-    historicalPrices.show();
-    // Display the count
-    //    System.out.println(students.count());
+    final Dataset<Row> rowDataset = historicalPrices
+        .withColumn("Unix", unix_timestamp(col("Date")));
+    rowDataset.show();
 
-    // Only display individual columns on the first rows
-    //    System.out.println(students.first().get(SUBJECT_KEY).toString());
-    //    System.out.println(students.first().getAs("subject").toString());
-    //    System.out.println(students.first().getAs("year").toString());
-
-    // Only display Modern Art
-    //    students.filter("subject = 'Modern Art' ").show();
-
-    // lambda
-//    students.filter(row -> row.getAs("subject").equals("Modern Art")).show();
-//
-//    // 2 filters, one statement.
-//    students.filter("subject = 'Modern Art' AND year >= 2007 ").show();
-//
-//    // columns style, 2 filters, easier to chain in this style than the other 2 styles.
-//    final Column subject = students.col("subject");
-//    final Column year = students.col("year");
-//    students.filter(subject.equalTo("Modern Art").and(year.equalTo("2007"))).show();
-//
-//    // spark functions, 2 where predicates
-//    students
-//        .filter(col("subject").equalTo("Modern Art")
-//            .and(col("year").equalTo("2007")))
-//        .show();
-//
-//    // take the raw dataset from students and create a table in memory, with any name that we like
-//    students.createOrReplaceTempView("students_view");
-//    sparkSession
-//        .sql("select score, year from students_view where subject='French' order by score desc")
-//        .show();
-
+    rowDataset.write().csv("src/main/resources/unix_harmony.csv");
     sparkSession.close();
   }
 }
