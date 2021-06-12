@@ -13,8 +13,6 @@ import org.apache.spark.sql.SparkSession;
 
 public class Main {
 
-  private static final int SUBJECT_KEY = 2;
-
   @SuppressWarnings("resource")
   public static void main(String[] args) {
     System.setProperty("hadoop.home.dir", "d:/hadoop");
@@ -33,13 +31,15 @@ public class Main {
             .getOrCreate();
 
     Dataset<Row> historicalPrices =
-        sparkSession.read().option("header", true).csv("src/main/resources/harmony.csv");
-    // Display all the rows.
+        sparkSession.read().option("header", true).csv("src/main/resources/source.csv");
+
     final Dataset<Row> rowDataset = historicalPrices
         .withColumn("Unix", unix_timestamp(col("Date")));
-    rowDataset.show();
 
-    rowDataset.write().csv("src/main/resources/unix_harmony.csv");
+    rowDataset.write()
+        .option("header", "true")
+        .csv("src/main/resources/target.csv");
+
     sparkSession.close();
   }
 }
