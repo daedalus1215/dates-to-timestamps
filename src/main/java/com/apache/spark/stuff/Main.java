@@ -38,6 +38,7 @@ public class Main {
 
     rowDataset.write()
         .option("header", "true")
+        .mode ("overwrite")
         .csv("src/main/resources/target.csv");
 
     sparkSession.close();
