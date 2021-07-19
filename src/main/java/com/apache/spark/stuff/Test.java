@@ -37,7 +37,13 @@ public class Test {
     final Dataset<Row> bagginsRig = jsonMultilineReaderFactory.apply(sparkSession, args[1])
         .withColumn("Day", to_date(col("date")));
 
-    final Dataset<Row> combined = ravencoinRig.union(bagginsRig);
+    final Dataset<Row> fiveNintyAndFiftySevenHundred = jsonMultilineReaderFactory
+        .apply(sparkSession, args[2])
+        .withColumn("Day", to_date(col("date")));
+
+    final Dataset<Row> combined = ravencoinRig
+        .union(bagginsRig)
+        .union(fiveNintyAndFiftySevenHundred);
 
     final Dataset<Row> agg = combined
         .withColumnRenamed("name", "Name")
