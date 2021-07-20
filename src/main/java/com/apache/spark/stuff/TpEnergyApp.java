@@ -16,7 +16,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-public class Test {
+public class TpEnergyApp {
 
   @SuppressWarnings("resource")
   public static void main(String[] args) {
@@ -41,9 +41,9 @@ public class Test {
         .apply(sparkSession, args[2])
         .withColumn("Day", to_date(col("date")));
 
-    final Dataset<Row> combined = ravencoinRig
-        .union(bagginsRig)
-        .union(fiveNintyAndFiftySevenHundred);
+    final Dataset<Row> combined = bagginsRig;
+//        .union(bagginsRig)
+//        .union(fiveNintyAndFiftySevenHundred);
 
     final Dataset<Row> agg = combined
         .withColumnRenamed("name", "Name")
@@ -52,6 +52,7 @@ public class Test {
         .agg(count(lit(1)).alias("Number of Log Entries"),
             avg("Wattz").alias("Average Watts an Hour"));
 
+    //@TODO: Doublecheck these numbers
     final Dataset<Row> rowDataset = agg
         .withColumn("Energy Consumption for Day", col("Average Watts an Hour").divide(1000))
         .withColumn("Energy Cost for Day", col("Energy Consumption for Day").multiply(0.07));
