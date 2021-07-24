@@ -10,6 +10,7 @@ import com.apache.spark.stuff.util.JsonMultilineReaderFactory;
 import com.apache.spark.stuff.util.SparkSessionFactory;
 import com.apache.spark.stuff.util.WriterFactory;
 import com.sun.prism.PixelFormat.DataType;
+import java.io.IOException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -19,7 +20,7 @@ import org.apache.spark.sql.SparkSession;
 public class TpEnergyApp {
 
   @SuppressWarnings("resource")
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     System.setProperty("hadoop.home.dir", "d:/hadoop");
     Logger.getLogger("org.apache").setLevel(Level.WARN);
 
