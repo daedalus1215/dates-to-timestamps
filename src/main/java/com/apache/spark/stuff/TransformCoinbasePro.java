@@ -48,6 +48,8 @@ public class TransformCoinbasePro {
         .withColumn("Amount", col("size"))
         .withColumn("Coin", col("size unit"))
         .withColumn("Source", lit("Coinbase Pro"))
+        .withColumn("FormatName", lit("Coinbase Pro"))
+        ,"TransformCoinbasePro"
 //        .show();
   );
   }

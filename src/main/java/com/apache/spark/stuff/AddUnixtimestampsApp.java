@@ -31,7 +31,7 @@ public class AddUnixtimestampsApp {
     final Dataset<Row> rowDataset = historicalPrices
         .withColumn("Unix", unix_timestamp(col("Date")));
 
-    writerFactory.accept(rowDataset);
+    writerFactory.accept(rowDataset, "AddUnixtimestampsApp");
 
     sparkSession.close();
   }

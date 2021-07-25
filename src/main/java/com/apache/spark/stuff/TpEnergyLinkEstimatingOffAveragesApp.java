@@ -79,7 +79,7 @@ public class TpEnergyLinkEstimatingOffAveragesApp {
         .withColumn("Watt Hours a Month",
             col("Energy Consumption for Day").multiply(24).multiply(30).multiply(1000));
 
-    writerFactory.accept(rowDataset.repartition(1));
+    writerFactory.accept(rowDataset.repartition(1), "tpEnergyLinkEstimatingOffAveragesApp");
 //    rowDataset.show();
 
     sparkSession.close();
