@@ -1,4 +1,4 @@
-package com.apache.spark.stuff.util;
+package com.apache.spark.stuff.functions.util;
 
 import java.util.function.BiConsumer;
 import org.apache.spark.sql.Dataset;

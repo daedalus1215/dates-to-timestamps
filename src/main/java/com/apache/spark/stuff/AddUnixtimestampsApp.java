@@ -3,9 +3,9 @@ package com.apache.spark.stuff;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.unix_timestamp;
 
-import com.apache.spark.stuff.util.CsvReaderFactory;
-import com.apache.spark.stuff.util.SparkSessionFactory;
-import com.apache.spark.stuff.util.WriterFactory;
+import com.apache.spark.stuff.functions.util.GetDatasetFromCsv;
+import com.apache.spark.stuff.functions.util.GetSparkSession;
+import com.apache.spark.stuff.functions.util.WriterFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -20,13 +20,13 @@ public class AddUnixtimestampsApp {
     Logger.getLogger("org.apache").setLevel(Level.WARN);
 
     // Declare
-    final SparkSessionFactory sparkSessionFactory = new SparkSessionFactory();
-    final CsvReaderFactory csvReaderFactory = new CsvReaderFactory();
+    final GetSparkSession getSparkSession = new GetSparkSession();
+    final GetDatasetFromCsv getDatasetFromCsv = new GetDatasetFromCsv();
     final WriterFactory writerFactory = new WriterFactory();
 
     // Setup
-    final SparkSession sparkSession = sparkSessionFactory.get();
-    Dataset<Row> historicalPrices = csvReaderFactory.apply(sparkSession, args[0]);
+    final SparkSession sparkSession = getSparkSession.get();
+    Dataset<Row> historicalPrices = getDatasetFromCsv.apply(sparkSession, args[0]);
 
     final Dataset<Row> rowDataset = historicalPrices
         .withColumn("Unix", unix_timestamp(col("Date")));
