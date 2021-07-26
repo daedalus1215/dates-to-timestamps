@@ -8,9 +8,9 @@ import static org.apache.spark.sql.functions.to_date;
 import static org.apache.spark.sql.functions.to_timestamp;
 import static org.apache.spark.sql.functions.unix_timestamp;
 
-import com.apache.spark.stuff.util.CsvReaderFactory;
-import com.apache.spark.stuff.util.SparkSessionFactory;
-import com.apache.spark.stuff.util.WriterFactory;
+import com.apache.spark.stuff.functions.util.GetDatasetFromCsv;
+import com.apache.spark.stuff.functions.util.GetSparkSession;
+import com.apache.spark.stuff.functions.util.WriterFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -27,13 +27,13 @@ public class TransformCoinbasePro {
     Logger.getLogger("org.apache").setLevel(Level.WARN);
 
     // Declare everything
-    final SparkSessionFactory sparkSessionFactory = new SparkSessionFactory();
-    final CsvReaderFactory csvReaderFactory = new CsvReaderFactory();
+    final GetSparkSession getSparkSession = new GetSparkSession();
+    final GetDatasetFromCsv getDatasetFromCsv = new GetDatasetFromCsv();
     final WriterFactory writerFactory = new WriterFactory();
 
     // Setup
-    final SparkSession sparkSession = sparkSessionFactory.get();
-    final Dataset<Row> originalDataset = csvReaderFactory.apply(sparkSession, args[0]);
+    final SparkSession sparkSession = getSparkSession.get();
+    final Dataset<Row> originalDataset = getDatasetFromCsv.apply(sparkSession, args[0]);
 
     writerFactory.accept(originalDataset
     .withColumn("Prep Columns ->", lit("----->"))

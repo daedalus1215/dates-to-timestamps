@@ -11,10 +11,9 @@ import static org.apache.spark.sql.functions.regexp_replace;
 import static org.apache.spark.sql.functions.to_date;
 import static org.apache.spark.sql.functions.year;
 
-import com.apache.spark.stuff.util.JsonMultilineReaderFactory;
-import com.apache.spark.stuff.util.JsonMultilineRecursiveReaderFactory;
-import com.apache.spark.stuff.util.SparkSessionFactory;
-import com.apache.spark.stuff.util.WriterFactory;
+import com.apache.spark.stuff.functions.util.GetDatasetFromJsonMultilineRecursive;
+import com.apache.spark.stuff.functions.util.GetSparkSession;
+import com.apache.spark.stuff.functions.util.WriterFactory;
 import com.sun.prism.PixelFormat.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -34,11 +33,11 @@ public class TpEnergyLinkEstimatingOffAveragesApp {
     final String removeableSubString = args[1];
 
     // Declare everything
-    final SparkSessionFactory sparkSessionFactory = new SparkSessionFactory();
-    final JsonMultilineRecursiveReaderFactory jsonMultilineReaderFactory = new JsonMultilineRecursiveReaderFactory();
+    final GetSparkSession getSparkSession = new GetSparkSession();
+    final GetDatasetFromJsonMultilineRecursive jsonMultilineReaderFactory = new GetDatasetFromJsonMultilineRecursive();
     final WriterFactory writerFactory = new WriterFactory();
 
-    final SparkSession sparkSession = sparkSessionFactory.get();
+    final SparkSession sparkSession = getSparkSession.get();
 
     // Setup
     final Dataset<Row> testing = jsonMultilineReaderFactory.apply(sparkSession, pathToFiles)
