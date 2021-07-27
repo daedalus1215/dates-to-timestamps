@@ -12,6 +12,7 @@ public class GetDatasetFromJsonMultilineRecursive implements
   public Dataset<Row> apply(SparkSession sparkSession, String sourceFileNameAndPath) {
     System.out.println("Source file: " + sourceFileNameAndPath);
     return sparkSession.read()
+        .option("multiline", true)
         .option("recursiveFileLookup", "true")
         .json(sourceFileNameAndPath);
   }
