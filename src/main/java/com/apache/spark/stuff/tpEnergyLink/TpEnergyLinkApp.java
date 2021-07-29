@@ -1,15 +1,13 @@
-package com.apache.spark.stuff;
+package com.apache.spark.stuff.tpEnergyLink;
 
 import static org.apache.spark.sql.functions.avg;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.count;
 import static org.apache.spark.sql.functions.date_format;
-import static org.apache.spark.sql.functions.input_file_name;
 import static org.apache.spark.sql.functions.lit;
 import static org.apache.spark.sql.functions.max;
 import static org.apache.spark.sql.functions.min;
 import static org.apache.spark.sql.functions.month;
-import static org.apache.spark.sql.functions.regexp_replace;
 import static org.apache.spark.sql.functions.sum;
 import static org.apache.spark.sql.functions.to_date;
 import static org.apache.spark.sql.functions.year;
@@ -29,13 +27,6 @@ import org.apache.spark.sql.types.DataTypes;
 
 public class TpEnergyLinkApp {
 
-  /**
-   * We have established a pattern, for the source files, to be something like {idOfPlugin}/{idOfPlugin}-log-{#}.json
-   * format. This regular expression will help us just keep the {id}.
-   * Eg of a file: file:///Users/{userName}/{pathToProject}/src/main/resources/tplink/{idOfPlugin}/{idOfPlugin}-log-{#}.json
-   */
-  private final static String STRIP_FILE_PATH_FROM_PLUG_ID = "/[A-Z0-9]+-log-([0-9]|([0-9]+[0-9])).json";
-
   @SuppressWarnings("resource")
   /**
    * The arguments are still being flushed out, the args[1] will probably stay, args[0] is more of a spike for the moment.
@@ -47,9 +38,14 @@ public class TpEnergyLinkApp {
     Logger.getLogger("org.apache").setLevel(Level.WARN);
 
     final String pathToFiles = args[0];
-    final String absolute_path_to_source_directory = args[1];
+    final String pathToFiles2 = args[1];
+    final String pathToFiles3 = args[2];
+    final String absolute_path_to_source_directory = args[3];
 
     // Declare everything
+    final GetIdField getIdField = new GetIdField();
+    final JoinWithPluginIdAndName joinWithPluginIdAndName = new JoinWithPluginIdAndName();
+
     final GetSparkSession getSparkSession = new GetSparkSession();
     final GetDatasetFromJsonMultilineRecursive getDatasetFromJsonMultilineRecursive = new GetDatasetFromJsonMultilineRecursive();
     final WriterFactory writerFactory = new WriterFactory();
@@ -57,19 +53,20 @@ public class TpEnergyLinkApp {
     // Setup
     final SparkSession sparkSession = getSparkSession.get();
     final GetPlugIdAndNameDataset getPlugIdAndNameDataset = new GetPlugIdAndNameDataset(sparkSession);
-
     final Dataset<Row> pluginIdAndNameDS = getPlugIdAndNameDataset.get();
 
-    final Dataset<Row> rowDataset = getDatasetFromJsonMultilineRecursive.apply(sparkSession, pathToFiles)
-        .withColumn("file_name_and_path_TEMP", input_file_name())
-        .withColumn("file_name_and_parent_dir_TEMP", regexp_replace(col("file_name_and_path_TEMP"), absolute_path_to_source_directory, ""))
-        .withColumn("row_id", regexp_replace(col("file_name_and_parent_dir_TEMP"), STRIP_FILE_PATH_FROM_PLUG_ID, ""));
+    final Dataset<Row> plugin1 = getDatasetFromJsonMultilineRecursive.apply(sparkSession, pathToFiles);
+    final Dataset<Row> plugin2 = getDatasetFromJsonMultilineRecursive.apply(sparkSession, pathToFiles2);
+    final Dataset<Row> plugin3 = getDatasetFromJsonMultilineRecursive.apply(sparkSession, pathToFiles3);
 
-    writerFactory.accept(rowDataset, "temp");
+    final Dataset<Row> plug1 = getIdField.apply(plugin1, pathToFiles);
+    final Dataset<Row> plug2 = getIdField.apply(plugin2, pathToFiles2);
+    final Dataset<Row> plug3 = getIdField.apply(plugin3, pathToFiles3);
 
-    final Dataset<Row> joinedWithName = rowDataset.join(pluginIdAndNameDS,
-        rowDataset.col("row_id").equalTo(pluginIdAndNameDS.col("id")), "left"
-    );
+    final Dataset<Row> joinedWithName = joinWithPluginIdAndName
+        .apply(plug1, pluginIdAndNameDS)
+        .union(joinWithPluginIdAndName.apply(plug2, pluginIdAndNameDS))
+        .union(joinWithPluginIdAndName.apply(plug3, pluginIdAndNameDS));
 
     final Dataset<Row> withDates = joinedWithName
         .withColumn("Date", date_format(col("ts").divide(1000).cast(DataTypes.TimestampType), "yyyy-MM-dd HH:mm:ss"))
@@ -103,7 +100,7 @@ public class TpEnergyLinkApp {
     final Dataset<Row> agg = d
         .withColumn("Real Summed Watts for Day and plug",
             col("Sum_watts_for_day_and_plug_TEMP").divide(col("Number of Log Entries")))
-        .drop("Sum_watts_for_day_and_plug_TEMP", "file_name_and_path_TEMP", "file_name_and_parent_dir_TEMP");
+        .drop("Sum_watts_for_day_and_plug_TEMP", "file_name_and_path_TEMP", "file_name_and_parent_dir_TEMP", "id_TEMP");
 
 //    final Dataset<Row> e = combined
 //        .withColumn("Wattz", col("pw").cast(String.valueOf(DataType.INT)))
