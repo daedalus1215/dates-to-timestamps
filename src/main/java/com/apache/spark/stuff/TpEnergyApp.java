@@ -46,13 +46,6 @@ public class TpEnergyApp {
         .apply(sparkSession, args[3])
         .withColumn("Day", to_date(col("date")));
 
-
-//    "src/main/resources/energy/800623C324035BD800E9057C8786B3BF1DBFE1A803 - 580 ravencoin.json"
-//    "/Users/laurenceadams/programming/dates-to-timestamps/src/main/resources/energy/8006165E9AF891539E59440D7E7DFAE11DE187BA - Baggins - 2 Mining Rigs.json"
-//    "/Users/laurenceadams/programming/dates-to-timestamps/src/main/resources/energy/800623C324035BD800E9057C8786B3BF1DBFE1A804 - 5700 + 590 (Nicehash).json"
-//    "/Users/laurenceadams/programming/dates-to-timestamps/src/main/resources/energy/800623C324035BD800E9057C8786B3BF1DBFE1A805 - 5700 xt (2) nicehash.json"
-
-
     final Dataset<Row> combined = fiveNintyAndFiftySevenHundred
         .union(fiftySevenHundredAndFiftySevenHundred);
 //        .union(fiveNintyAndFiftySevenHundred);
@@ -70,7 +63,7 @@ public class TpEnergyApp {
         .withColumn("Energy Cost for Day", col("Energy Consumption for Day").multiply(0.07));
 
 //    writerFactory.accept(rowDataset);
-    rowDataset.show();
+//    rowDataset.show();
 
     sparkSession.close();
   }
