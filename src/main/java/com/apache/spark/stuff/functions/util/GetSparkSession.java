@@ -1,11 +1,11 @@
-package com.apache.spark.stuff.util;
+package com.apache.spark.stuff.functions.util;
 
 import java.util.function.Supplier;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
 
-public class SparkSessionFactory implements Supplier<SparkSession> {
+public class GetSparkSession implements Supplier<SparkSession> {
 
   @Override
   public SparkSession get() {
