@@ -3,6 +3,7 @@ package com.apache.spark.stuff.tpEnergyLink;
 public class Constants {
   // Join
   public static String LEFT_JOIN = "left";
+  public static String OUTER_JOIN = "outer";
 
   // Energy Source Files
   public static String SOURCE_POWER = "pw";
@@ -13,6 +14,12 @@ public class Constants {
   public static String CREATED_FILE_NAME_AND_PREFIX_TEMP = "FILE_NAME_AND_PREFIX_TEMP";
   public static String CREATED_FILE_NAME_AND_PARENT_DIR_TEMP = "FILE_NAME_AND_PARENT_DIR_TEMP";
   public static String CREATED_SUM_WATTS_FOR_DAY_AND_PLUG_TEMP = "CREATED_SUM_WATTS_FOR_DAY_AND_PLUG_TEMP";
+  public static String CREATED_UNIQUE_ID = "CREATED_UNIQUE_ID";
+  public static String CREATED_DAY = "CREATED_DAY";
+  public static String CREATED_DATE = "CREATED_DATE";
+  public static String CREATED_MONTH = "CREATED_MONTH";
+  public static String CREATED_YEAR = "CREATED_YEAR";
+  public static String CREATED_WATTS = "CREATED_WATTS";
 
   // Plugin File
 
@@ -23,4 +30,6 @@ public class Constants {
   public static String RVN_CREATED_COUNT_OF_RECORDS_A_DAY = "RVN_CREATED_COUNT_OF_RECORDS_A_DAY_FOR_RVN";
   public static String RVN_CREATED_SUM_OF_A_DAY = "RVN_CREATED_SUM_OF_RVN_A_DAY";
   public static String RVN_SOURCE_AMOUNT = "Amount (RVN)";
+  public static String RVN_CREATED_UNIQUE_ID = "RVN_CREATED_UNIQUE_ID";
+
 }

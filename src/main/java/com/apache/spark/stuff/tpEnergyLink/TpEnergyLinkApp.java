@@ -1,20 +1,28 @@
 package com.apache.spark.stuff.tpEnergyLink;
 
+import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_DATE;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_DAY;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_FILE_NAME_AND_PARENT_DIR_TEMP;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_FILE_NAME_AND_PREFIX_TEMP;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_ID;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_MONTH;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_REMOVED_PATH_TO_FILE_TEMP;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_SUM_WATTS_FOR_DAY_AND_PLUG_TEMP;
-import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_SOURCE_ID;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_UNIQUE_ID;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_WATTS;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_YEAR;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_CREATED_COUNT_OF_RECORDS_A_DAY;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_CREATED_DATE;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_CREATED_SUM_OF_A_DAY;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_CREATED_UNIQUE_ID;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_SOURCE_AMOUNT;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_SOURCE_DATE;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_SOURCE_ID;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.SOURCE_POWER;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.SOURCE_UNIX_TIMESTAMP;
 import static org.apache.spark.sql.functions.avg;
 import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.concat;
 import static org.apache.spark.sql.functions.count;
 import static org.apache.spark.sql.functions.date_format;
 import static org.apache.spark.sql.functions.lit;
@@ -41,9 +49,9 @@ import org.apache.spark.sql.types.DataTypes;
 public class TpEnergyLinkApp {
 
   @SuppressWarnings("resource")
-  /**
-   * args[0] = "/Users/{userName}/{pathToProject}/src/main/resources/tplink/{idOfAPlugin}"
-   * args[1] = "/Users/{userName}/{pathToProject}/src/main/resources/tplink/{idOfAPlugin}"
+  /*
+   * args[0] = "/Users/{userName}/{pathToProject}/src/main/resources/tplink/{idOfAPlugin}".
+   * args[1] = "/Users/{userName}/{pathToProject}/src/main/resources/tplink/{idOfAPlugin}".
    */
   public static void main(String[] args) {
     System.setProperty("hadoop.home.dir", "d:/hadoop");
@@ -71,11 +79,12 @@ public class TpEnergyLinkApp {
 
     final Dataset<Row> ravenDS = getDatasetFromCsv.apply(sparkSession, pathToRvnLog)
         .withColumn(RVN_CREATED_DATE, to_date(col(RVN_SOURCE_DATE)))
-        .groupBy(col(RVN_CREATED_DATE), col(RVN_SOURCE_ID))
+        .withColumn(RVN_CREATED_UNIQUE_ID, concat(col(RVN_CREATED_DATE), lit('_'), col(RVN_SOURCE_ID)))
+        .groupBy(col(RVN_CREATED_DATE), col(RVN_SOURCE_ID), col(RVN_CREATED_UNIQUE_ID))
         .agg(
             count(lit(1)).alias(RVN_CREATED_COUNT_OF_RECORDS_A_DAY),
-            sum(col(RVN_SOURCE_AMOUNT)).alias(RVN_CREATED_SUM_OF_A_DAY)
-        );
+            sum(col(RVN_SOURCE_AMOUNT)).alias(RVN_CREATED_SUM_OF_A_DAY))
+        .sort(col(RVN_CREATED_DATE));
 
 //    ravenDS.show();
 
@@ -89,23 +98,25 @@ public class TpEnergyLinkApp {
         .union(joinWithPluginIdAndName.apply(plug3, pluginIdAndNameDS));
 
     final Dataset<Row> withDatesAndAggregations = joinedWithName
-        .withColumn("Date", date_format(col(SOURCE_UNIX_TIMESTAMP).divide(1000).cast(DataTypes.TimestampType), "yyyy-MM-dd HH:mm:ss"))
-        .withColumn("Day", to_date(col("Date")))
-        .withColumn("Month", month(col("Date")))
-        .withColumn("Year", year(col("Date")));
+        .withColumn(CREATED_DATE, date_format(col(SOURCE_UNIX_TIMESTAMP)
+            .divide(1000).cast(DataTypes.TimestampType), "yyyy-MM-dd HH:mm:ss"))
+        .withColumn(CREATED_DAY, to_date(col(CREATED_DATE)))
+        .withColumn(CREATED_MONTH, month(col(CREATED_DATE)))
+        .withColumn(CREATED_YEAR, year(col(CREATED_DATE)))
+        .withColumn(CREATED_UNIQUE_ID, concat(col(CREATED_DAY), lit('_'), col(CREATED_ID)));
 
-    final Dataset<Row> withWatts = withDatesAndAggregations.withColumn("Wattz", col(SOURCE_POWER).cast(String.valueOf(DataType.INT)))
-        .groupBy(col("Day"), col("id"), col("name"))
+    final Dataset<Row> withWatts = withDatesAndAggregations
+        .withColumn(CREATED_WATTS, col(SOURCE_POWER).cast(String.valueOf(DataType.INT)))
+        .groupBy(col(CREATED_DAY), col(CREATED_ID), col(CREATED_UNIQUE_ID))
         .agg(
             count(lit(1)).alias("Number of Log Entries"),
-            sum("Wattz").alias(CREATED_SUM_WATTS_FOR_DAY_AND_PLUG_TEMP),
-            max("Wattz").alias("Max watts for day and plug"),
-            min("Wattz").alias("Min watts for day and plug"),
-            avg("Wattz").alias("Avg watts for day and plug"))
-        .sort(col("Day")
+            sum(CREATED_WATTS).alias(CREATED_SUM_WATTS_FOR_DAY_AND_PLUG_TEMP),
+            max(CREATED_WATTS).alias("Max watts for day and plug"),
+            min(CREATED_WATTS).alias("Min watts for day and plug"),
+            avg(CREATED_WATTS).alias("Avg watts for day and plug"))
+        .sort(col(CREATED_DAY)
         );
 
-    withWatts.show();
     final Dataset<Row> withAsset = joinWithMinedAsset.apply(withWatts, ravenDS);
 
     final Dataset<Row> withMathDone = withAsset
