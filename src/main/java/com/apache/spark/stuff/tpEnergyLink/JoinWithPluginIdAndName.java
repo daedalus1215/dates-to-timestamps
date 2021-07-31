@@ -1,6 +1,7 @@
 package com.apache.spark.stuff.tpEnergyLink;
 
 import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_ID;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.LEFT_JOIN;
 
 import java.util.function.BiFunction;
 import org.apache.spark.sql.Dataset;
@@ -10,8 +11,8 @@ public class JoinWithPluginIdAndName implements BiFunction<Dataset<Row>, Dataset
 
   @Override
   public Dataset<Row> apply(Dataset<Row> targetDS, Dataset<Row> pluginIdAndNameDS) {
-    return targetDS.join(pluginIdAndNameDS, targetDS.col(CREATED_ID)
-            .equalTo(pluginIdAndNameDS.col("id")),
-        "left");
+    return targetDS.join(pluginIdAndNameDS,
+        targetDS.col(CREATED_ID).equalTo(pluginIdAndNameDS.col("id")),
+        LEFT_JOIN);
   }
 }
