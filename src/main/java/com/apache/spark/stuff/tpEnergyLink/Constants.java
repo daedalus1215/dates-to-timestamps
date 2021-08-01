@@ -32,4 +32,8 @@ public class Constants {
   public static String RVN_SOURCE_AMOUNT = "Amount (RVN)";
   public static String RVN_CREATED_UNIQUE_ID = "RVN_CREATED_UNIQUE_ID";
 
+  // Price
+  public static String PRICE_SOURCE_DATE = "snapped_at";
+  public static String PRICE_SOURCE_PRICE = "price";
+  public static String PRICE_CREATED_DATE = "PRICE_CREATED_DATE";
 }
