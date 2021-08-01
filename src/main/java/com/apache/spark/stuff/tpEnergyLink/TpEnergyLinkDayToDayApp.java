@@ -11,6 +11,9 @@ import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_SUM_WATTS_FO
 import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_UNIQUE_ID;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_WATTS;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.CREATED_YEAR;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.PRICE_CREATED_DATE;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.PRICE_SOURCE_DATE;
+import static com.apache.spark.stuff.tpEnergyLink.Constants.PRICE_SOURCE_PRICE;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_CREATED_COUNT_OF_RECORDS_A_DAY;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_CREATED_DATE;
 import static com.apache.spark.stuff.tpEnergyLink.Constants.RVN_CREATED_SUM_OF_A_DAY;
@@ -60,11 +63,13 @@ public class TpEnergyLinkDayToDayApp {
     final String pathToFiles2 = args[0];
     final String pathToFiles3 = args[1];
     final String pathToRvnLog = args[2];
+    final String pathToFiles4 = args[3];
 
     // Declare everything
     final GetIdField getIdField = new GetIdField();
     final JoinWithPluginIdAndName joinWithPluginIdAndName = new JoinWithPluginIdAndName();
     final GetDatasetFromCsv getDatasetFromCsv = new GetDatasetFromCsv();
+    final JoinAssetWithPrice joinAssetWithPrice = new JoinAssetWithPrice();
 
     final GetSparkSession getSparkSession = new GetSparkSession();
     final GetDatasetFromJsonMultilineRecursive getDatasetFromJsonMultilineRecursive = new GetDatasetFromJsonMultilineRecursive();
@@ -75,8 +80,8 @@ public class TpEnergyLinkDayToDayApp {
     final SparkSession sparkSession = getSparkSession.get();
     final GetPlugIdAndNameDataset getPlugIdAndNameDataset = new GetPlugIdAndNameDataset(sparkSession);
 
+    // Load the files
     final Dataset<Row> pluginIdAndNameDS = getPlugIdAndNameDataset.get();
-
     final Dataset<Row> ravenDS = getDatasetFromCsv.apply(sparkSession, pathToRvnLog)
         .withColumn(RVN_CREATED_DATE, to_date(col(RVN_SOURCE_DATE)))
         .withColumn(RVN_CREATED_UNIQUE_ID, concat(col(RVN_CREATED_DATE), lit('_'), col(RVN_SOURCE_ID)))
@@ -85,10 +90,11 @@ public class TpEnergyLinkDayToDayApp {
             count(lit(1)).alias(RVN_CREATED_COUNT_OF_RECORDS_A_DAY),
             sum(col(RVN_SOURCE_AMOUNT)).alias(RVN_CREATED_SUM_OF_A_DAY))
         .sort(col(RVN_CREATED_DATE));
-
     final Dataset<Row> plugin2 = getDatasetFromJsonMultilineRecursive.apply(sparkSession, pathToFiles2);
     final Dataset<Row> plugin3 = getDatasetFromJsonMultilineRecursive.apply(sparkSession, pathToFiles3);
+    final Dataset<Row> priceOfRvn = getDatasetFromCsv.apply(sparkSession, pathToFiles4);
 
+    // Process files
     final Dataset<Row> plug2 = getIdField.apply(plugin2, pathToFiles2);
     final Dataset<Row> plug3 = getIdField.apply(plugin3, pathToFiles3);
 
@@ -114,9 +120,11 @@ public class TpEnergyLinkDayToDayApp {
         .sort(col(CREATED_DAY)
         );
 
-    final Dataset<Row> withAsset = joinWithMinedAsset.apply(withWatts, ravenDS);
+    final Dataset<Row> assetWithDate = priceOfRvn.withColumn(PRICE_CREATED_DATE, to_date(col(PRICE_SOURCE_DATE)));
+    final Dataset<Row> withAsset = joinWithMinedAsset.apply(withWatts, joinAssetWithPrice.apply(ravenDS, assetWithDate));
+    final Dataset<Row> d = withAsset.withColumn("PRICE_ASSET_TOTAL_VALUE", col(PRICE_SOURCE_PRICE).multiply(col(RVN_CREATED_SUM_OF_A_DAY)));
 
-    final Dataset<Row> withMathDone = withAsset
+    final Dataset<Row> withMathDone = d
         .withColumn("Real Summed Watts for Day and plug", col(CREATED_SUM_WATTS_FOR_DAY_AND_PLUG_TEMP).divide(col("Number of Log Entries")))
         .withColumn("Energy Cost for Day", col("Real Summed Watts for Day and plug").divide(1000).multiply(0.07))
         .withColumn("Watt Hours a day", col("Real Summed Watts for Day and plug").multiply(24));
@@ -127,7 +135,12 @@ public class TpEnergyLinkDayToDayApp {
         CREATED_FILE_NAME_AND_PREFIX_TEMP,
         CREATED_FILE_NAME_AND_PARENT_DIR_TEMP,
         CREATED_ID,
-        CREATED_REMOVED_PATH_TO_FILE_TEMP);
+        CREATED_REMOVED_PATH_TO_FILE_TEMP,
+        PRICE_SOURCE_DATE,
+        "market_value",
+        "total_volume",
+        "market_cap",
+        RVN_CREATED_UNIQUE_ID);
 
     writerFactory.accept(cleanedUp.repartition(1), "daily");
 
