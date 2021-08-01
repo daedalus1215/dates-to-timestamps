@@ -46,7 +46,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
 
-public class TpEnergyLinkApp {
+public class TpEnergyLinkDayToDayApp {
 
   @SuppressWarnings("resource")
   /*
@@ -86,18 +86,15 @@ public class TpEnergyLinkApp {
             sum(col(RVN_SOURCE_AMOUNT)).alias(RVN_CREATED_SUM_OF_A_DAY))
         .sort(col(RVN_CREATED_DATE));
 
-//    ravenDS.show();
-
     final Dataset<Row> plugin2 = getDatasetFromJsonMultilineRecursive.apply(sparkSession, pathToFiles2);
     final Dataset<Row> plugin3 = getDatasetFromJsonMultilineRecursive.apply(sparkSession, pathToFiles3);
 
     final Dataset<Row> plug2 = getIdField.apply(plugin2, pathToFiles2);
     final Dataset<Row> plug3 = getIdField.apply(plugin3, pathToFiles3);
 
-    final Dataset<Row> joinedWithName = joinWithPluginIdAndName.apply(plug2, pluginIdAndNameDS)
-        .union(joinWithPluginIdAndName.apply(plug3, pluginIdAndNameDS));
+    final Dataset<Row> union = plug2.union(plug3);
 
-    final Dataset<Row> withDatesAndAggregations = joinedWithName
+    final Dataset<Row> withDatesAndAggregations = union
         .withColumn(CREATED_DATE, date_format(col(SOURCE_UNIX_TIMESTAMP)
             .divide(1000).cast(DataTypes.TimestampType), "yyyy-MM-dd HH:mm:ss"))
         .withColumn(CREATED_DAY, to_date(col(CREATED_DATE)))
@@ -124,8 +121,9 @@ public class TpEnergyLinkApp {
         .withColumn("Energy Cost for Day", col("Real Summed Watts for Day and plug").divide(1000).multiply(0.07))
         .withColumn("Watt Hours a day", col("Real Summed Watts for Day and plug").multiply(24));
 
+    final Dataset<Row> joinedWithName = joinWithPluginIdAndName.apply(withMathDone, pluginIdAndNameDS);
 
-    final Dataset<Row> cleanedUp = withMathDone.drop(CREATED_SUM_WATTS_FOR_DAY_AND_PLUG_TEMP,
+    final Dataset<Row> cleanedUp = joinedWithName.drop(CREATED_SUM_WATTS_FOR_DAY_AND_PLUG_TEMP,
         CREATED_FILE_NAME_AND_PREFIX_TEMP,
         CREATED_FILE_NAME_AND_PARENT_DIR_TEMP,
         CREATED_ID,
