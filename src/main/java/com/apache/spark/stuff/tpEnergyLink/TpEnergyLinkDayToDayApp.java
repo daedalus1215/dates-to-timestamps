@@ -126,7 +126,7 @@ public class TpEnergyLinkDayToDayApp {
 
     final Dataset<Row> withMathDone = d
         .withColumn("Real Summed Watts for Day and plug", col(CREATED_SUM_WATTS_FOR_DAY_AND_PLUG_TEMP).divide(col("Number of Log Entries")))
-        .withColumn("Energy Cost for Day", col("Real Summed Watts for Day and plug").divide(1000).multiply(0.07))
+        .withColumn("Energy Cost for Day", col("Real Summed Watts for Day and plug").divide(1000).multiply(0.07).multiply(24))
         .withColumn("Watt Hours a day", col("Real Summed Watts for Day and plug").multiply(24));
 
     final Dataset<Row> joinedWithName = joinWithPluginIdAndName.apply(withMathDone, pluginIdAndNameDS);
