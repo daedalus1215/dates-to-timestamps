@@ -26,11 +26,19 @@ public class Constants {
   // Assets
   public static String RVN_SOURCE_ID = "RIG_ID";
   public static String RVN_SOURCE_DATE = "Date";
+  public static String RVN_SOURCE_AMOUNT = "Amount (RVN)";
   public static String RVN_CREATED_DATE = "RVN_CREATED_DATE";
   public static String RVN_CREATED_COUNT_OF_RECORDS_A_DAY = "RVN_CREATED_COUNT_OF_RECORDS_A_DAY_FOR_RVN";
   public static String RVN_CREATED_SUM_OF_A_DAY = "RVN_CREATED_SUM_OF_RVN_A_DAY";
-  public static String RVN_SOURCE_AMOUNT = "Amount (RVN)";
   public static String RVN_CREATED_UNIQUE_ID = "RVN_CREATED_UNIQUE_ID";
+
+  public static String A2_SOURCE_DATE = "Date time";
+  public static String A2_SOURCE_LOCAL_DATE_TIME = "Local date time";
+  public static String A2_SOURCE_PURPOSE = "Purpose";
+  public static String A2_SOURCE_AMOUNT_BTC = "Amount (BTC)";
+  public static String A2_SOURCE_EXCHANGE_RATE = "Exchange rate";
+  public static String A2_SOURCE_AMOUNT_USD = "Amount (USD)";
+
 
   // Price
   public static String PRICE_SOURCE_DATE = "snapped_at";
