@@ -9,7 +9,7 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructType;
 
-public class GetPlugIdAndNameDataset implements Supplier<Dataset<Row>> {
+public class PlugIdAndNameTransformer implements Supplier<Dataset<Row>> {
 
   private final SparkSession sparkSession;
   private final List<Row> rows = new GetPlugIdAndNameRows().get();
@@ -18,7 +18,7 @@ public class GetPlugIdAndNameDataset implements Supplier<Dataset<Row>> {
    * Can make this far more dynamic, but no need for the moment.
    * @param sparkSession
    */
-  public GetPlugIdAndNameDataset(SparkSession sparkSession) {
+  public PlugIdAndNameTransformer(SparkSession sparkSession) {
     this.sparkSession = sparkSession;
   }
 
