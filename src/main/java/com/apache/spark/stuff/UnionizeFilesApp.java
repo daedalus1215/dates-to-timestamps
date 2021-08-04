@@ -1,8 +1,9 @@
 package com.apache.spark.stuff;
 
-import com.apache.spark.stuff.functions.util.GetDatasetFromCsv;
-import com.apache.spark.stuff.functions.util.GetSparkSession;
-import com.apache.spark.stuff.functions.util.WriterFactory;
+import com.apache.spark.stuff.functions.writers.CsvWriter;
+import com.apache.spark.stuff.functions.readers.GetDatasetFromCsv;
+import com.apache.spark.stuff.functions.GetSparkSession;
+import com.apache.spark.stuff.functions.writers.WriterInterface;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -27,7 +28,7 @@ public class UnionizeFilesApp {
     final GetDatasetFromCsv getDatasetFromCsv = new GetDatasetFromCsv();
 
     final GetSparkSession getSparkSession = new GetSparkSession();
-    final WriterFactory writerFactory = new WriterFactory();
+    final WriterInterface writerInterface = new CsvWriter();
 
     // Setup
     final SparkSession sparkSession = getSparkSession.get();
@@ -36,7 +37,7 @@ public class UnionizeFilesApp {
     final Dataset<Row> unionized = getDatasetFromCsv.apply(sparkSession, pathToFiles)
         .union(getDatasetFromCsv.apply(sparkSession, pathToFiles2));
 
-    writerFactory.accept(unionized.repartition(1), "temp");
+    writerInterface.accept(unionized.repartition(1), "temp");
 
     sparkSession.close();
   }

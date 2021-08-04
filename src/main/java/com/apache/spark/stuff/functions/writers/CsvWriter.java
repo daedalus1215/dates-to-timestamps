@@ -1,10 +1,9 @@
-package com.apache.spark.stuff.functions.util;
+package com.apache.spark.stuff.functions.writers;
 
-import java.util.function.BiConsumer;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
-public class WriterFactory implements BiConsumer<Dataset<Row>, String> {
+public class CsvWriter implements WriterInterface {
 
   private final String RESOURCES_DIRECTORY = "src/main/resources/";
 

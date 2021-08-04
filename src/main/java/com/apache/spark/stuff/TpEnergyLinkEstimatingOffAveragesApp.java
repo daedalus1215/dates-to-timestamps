@@ -11,9 +11,10 @@ import static org.apache.spark.sql.functions.regexp_replace;
 import static org.apache.spark.sql.functions.to_date;
 import static org.apache.spark.sql.functions.year;
 
-import com.apache.spark.stuff.functions.util.GetDatasetFromJsonMultilineRecursive;
-import com.apache.spark.stuff.functions.util.GetSparkSession;
-import com.apache.spark.stuff.functions.util.WriterFactory;
+import com.apache.spark.stuff.functions.GetSparkSession;
+import com.apache.spark.stuff.functions.readers.GetDatasetFromJsonMultilineRecursive;
+import com.apache.spark.stuff.functions.writers.CsvWriter;
+import com.apache.spark.stuff.functions.writers.WriterInterface;
 import com.sun.prism.PixelFormat.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -35,7 +36,7 @@ public class TpEnergyLinkEstimatingOffAveragesApp {
     // Declare everything
     final GetSparkSession getSparkSession = new GetSparkSession();
     final GetDatasetFromJsonMultilineRecursive jsonMultilineReaderFactory = new GetDatasetFromJsonMultilineRecursive();
-    final WriterFactory writerFactory = new WriterFactory();
+    final WriterInterface writer = new CsvWriter();
 
     final SparkSession sparkSession = getSparkSession.get();
 
@@ -78,7 +79,7 @@ public class TpEnergyLinkEstimatingOffAveragesApp {
         .withColumn("Watt Hours a Month",
             col("Energy Consumption for Day").multiply(24).multiply(30).multiply(1000));
 
-    writerFactory.accept(rowDataset.repartition(1), "tpEnergyLinkEstimatingOffAveragesApp");
+    writer.accept(rowDataset.repartition(1), "tpEnergyLinkEstimatingOffAveragesApp");
 //    rowDataset.show();
 
     sparkSession.close();

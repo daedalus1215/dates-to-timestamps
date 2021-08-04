@@ -3,9 +3,10 @@ package com.apache.spark.stuff;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.unix_timestamp;
 
-import com.apache.spark.stuff.functions.util.GetDatasetFromCsv;
-import com.apache.spark.stuff.functions.util.GetSparkSession;
-import com.apache.spark.stuff.functions.util.WriterFactory;
+import com.apache.spark.stuff.functions.GetSparkSession;
+import com.apache.spark.stuff.functions.readers.GetDatasetFromCsv;
+import com.apache.spark.stuff.functions.writers.CsvWriter;
+import com.apache.spark.stuff.functions.writers.WriterInterface;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -22,7 +23,7 @@ public class AddUnixtimestampsApp {
     // Declare
     final GetSparkSession getSparkSession = new GetSparkSession();
     final GetDatasetFromCsv getDatasetFromCsv = new GetDatasetFromCsv();
-    final WriterFactory writerFactory = new WriterFactory();
+    final WriterInterface writer = new CsvWriter();
 
     // Setup
     final SparkSession sparkSession = getSparkSession.get();
@@ -31,7 +32,7 @@ public class AddUnixtimestampsApp {
     final Dataset<Row> rowDataset = historicalPrices
         .withColumn("Unix", unix_timestamp(col("Date")));
 
-    writerFactory.accept(rowDataset, "AddUnixtimestampsApp");
+    writer.accept(rowDataset, "AddUnixtimestampsApp");
 
     sparkSession.close();
   }

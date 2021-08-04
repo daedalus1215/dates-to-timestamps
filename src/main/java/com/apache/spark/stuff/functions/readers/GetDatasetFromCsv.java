@@ -1,4 +1,4 @@
-package com.apache.spark.stuff.functions.util;
+package com.apache.spark.stuff.functions.readers;
 
 import java.util.function.BiFunction;
 import org.apache.spark.sql.Dataset;

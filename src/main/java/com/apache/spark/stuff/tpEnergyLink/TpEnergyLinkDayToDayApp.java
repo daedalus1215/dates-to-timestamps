@@ -36,11 +36,12 @@ import static org.apache.spark.sql.functions.sum;
 import static org.apache.spark.sql.functions.to_date;
 import static org.apache.spark.sql.functions.year;
 
-import com.apache.spark.stuff.functions.GetPlugIdAndNameDataset;
-import com.apache.spark.stuff.functions.util.GetDatasetFromCsv;
-import com.apache.spark.stuff.functions.util.GetDatasetFromJsonMultilineRecursive;
-import com.apache.spark.stuff.functions.util.GetSparkSession;
-import com.apache.spark.stuff.functions.util.WriterFactory;
+import com.apache.spark.stuff.tpEnergyLink.transformers.GetPlugIdAndNameDataset;
+import com.apache.spark.stuff.functions.writers.CsvWriter;
+import com.apache.spark.stuff.functions.readers.GetDatasetFromCsv;
+import com.apache.spark.stuff.functions.readers.GetDatasetFromJsonMultilineRecursive;
+import com.apache.spark.stuff.functions.GetSparkSession;
+import com.apache.spark.stuff.functions.writers.WriterInterface;
 import com.sun.prism.PixelFormat.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -73,7 +74,7 @@ public class TpEnergyLinkDayToDayApp {
 
     final GetSparkSession getSparkSession = new GetSparkSession();
     final GetDatasetFromJsonMultilineRecursive getDatasetFromJsonMultilineRecursive = new GetDatasetFromJsonMultilineRecursive();
-    final WriterFactory writerFactory = new WriterFactory();
+    final WriterInterface writer = new CsvWriter();
     final JoinWithMinedAsset joinWithMinedAsset = new JoinWithMinedAsset();
 
     // Setup
@@ -142,7 +143,7 @@ public class TpEnergyLinkDayToDayApp {
         "market_cap",
         RVN_CREATED_UNIQUE_ID);
 
-    writerFactory.accept(cleanedUp.repartition(1), "daily");
+    writer.accept(cleanedUp.repartition(1), "daily");
 
     sparkSession.close();
   }

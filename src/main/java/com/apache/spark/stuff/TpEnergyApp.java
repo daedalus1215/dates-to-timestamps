@@ -6,9 +6,10 @@ import static org.apache.spark.sql.functions.count;
 import static org.apache.spark.sql.functions.lit;
 import static org.apache.spark.sql.functions.to_date;
 
-import com.apache.spark.stuff.functions.util.GetDatasetFromJsonMultiline;
-import com.apache.spark.stuff.functions.util.GetSparkSession;
-import com.apache.spark.stuff.functions.util.WriterFactory;
+import com.apache.spark.stuff.functions.writers.CsvWriter;
+import com.apache.spark.stuff.functions.readers.GetDatasetFromJsonMultiline;
+import com.apache.spark.stuff.functions.GetSparkSession;
+import com.apache.spark.stuff.functions.writers.WriterInterface;
 import com.sun.prism.PixelFormat.DataType;
 import java.io.IOException;
 import org.apache.log4j.Level;
@@ -27,7 +28,7 @@ public class TpEnergyApp {
     // Declare everything
     final GetSparkSession getSparkSession = new GetSparkSession();
     final GetDatasetFromJsonMultiline getDatasetFromJsonMultiline = new GetDatasetFromJsonMultiline();
-    final WriterFactory writerFactory = new WriterFactory();
+    final WriterInterface writer = new CsvWriter();
 
     final SparkSession sparkSession = getSparkSession.get();
 

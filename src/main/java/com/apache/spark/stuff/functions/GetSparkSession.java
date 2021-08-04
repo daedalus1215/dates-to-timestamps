@@ -1,4 +1,4 @@
-package com.apache.spark.stuff.functions.util;
+package com.apache.spark.stuff.functions;
 
 import java.util.function.Supplier;
 import org.apache.spark.SparkConf;
