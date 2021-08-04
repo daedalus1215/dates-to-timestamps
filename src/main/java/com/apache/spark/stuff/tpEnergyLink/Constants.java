@@ -24,13 +24,22 @@ public class Constants {
   // Plugin File
 
   // Assets
-  public static String RVN_SOURCE_ID = "RIG_ID";
+  public static String RVN_SOURCE_CONFIRMED = "Confirmed";
   public static String RVN_SOURCE_DATE = "Date";
-  public static String RVN_SOURCE_AMOUNT = "Amount (RVN)";
+  public static String RVN_SOURCE_TYPE = "Type";
+  public static String RVN_SOURCE_LABEL = "Label";
+  public static String RVN_SOURCE_ADDRESS = "Address";
+  public static String RVN_SOURCE_AMOUNT_RVN = "Amount (RVN)";
+  public static String RVN_SOURCE_AMOUNT_ASSET = "Asset";
+  public static String RVN_SOURCE_AMOUNT_TRANSACTION_ID = "ID";
+  public static String RVN_SOURCE_AMOUNT_RIG_ID = "RIG_ID";
+
   public static String RVN_CREATED_DATE = "RVN_CREATED_DATE";
+  public static String RVN_CREATED_AMOUNT = "RVN_CREATED_AMOUNT";
+  public static String RVN_CREATED_AMOUNT_ASSET = "RVN_CREATED_AMOUNT_ASSET";
+  public static String RVN_CREATED_UNIQUE_ID = "RVN_CREATED_UNIQUE_ID";
   public static String RVN_CREATED_COUNT_OF_RECORDS_A_DAY = "RVN_CREATED_COUNT_OF_RECORDS_A_DAY_FOR_RVN";
   public static String RVN_CREATED_SUM_OF_A_DAY = "RVN_CREATED_SUM_OF_RVN_A_DAY";
-  public static String RVN_CREATED_UNIQUE_ID = "RVN_CREATED_UNIQUE_ID";
 
   public static String A2_SOURCE_DATE = "Date time";
   public static String A2_SOURCE_LOCAL_DATE_TIME = "Local date time";
