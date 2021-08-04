@@ -1,5 +1,6 @@
-package com.apache.spark.stuff.tpEnergyLink.transformers;
+package com.apache.spark.stuff.tpEnergyLink;
 
+import com.apache.spark.stuff.tpEnergyLink.transformers.GetPlugIdAndNameRows;
 import java.util.List;
 import java.util.function.Supplier;
 import org.apache.spark.sql.Dataset;
@@ -9,7 +10,7 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructType;
 
-public class PlugIdAndNameTransformer implements Supplier<Dataset<Row>> {
+public class PlugIdAndNameReader implements Supplier<Dataset<Row>> {
 
   private final SparkSession sparkSession;
   private final List<Row> rows = new GetPlugIdAndNameRows().get();
@@ -18,7 +19,7 @@ public class PlugIdAndNameTransformer implements Supplier<Dataset<Row>> {
    * Can make this far more dynamic, but no need for the moment.
    * @param sparkSession
    */
-  public PlugIdAndNameTransformer(SparkSession sparkSession) {
+  public PlugIdAndNameReader(SparkSession sparkSession) {
     this.sparkSession = sparkSession;
   }
 
