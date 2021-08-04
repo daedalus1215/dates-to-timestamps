@@ -8,9 +8,10 @@ import static org.apache.spark.sql.functions.to_date;
 import static org.apache.spark.sql.functions.to_timestamp;
 import static org.apache.spark.sql.functions.unix_timestamp;
 
-import com.apache.spark.stuff.functions.util.GetDatasetFromCsv;
-import com.apache.spark.stuff.functions.util.GetSparkSession;
-import com.apache.spark.stuff.functions.util.WriterFactory;
+import com.apache.spark.stuff.functions.writers.CsvWriter;
+import com.apache.spark.stuff.functions.readers.GetDatasetFromCsv;
+import com.apache.spark.stuff.functions.GetSparkSession;
+import com.apache.spark.stuff.functions.writers.WriterInterface;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -29,23 +30,23 @@ public class TransformCoinbasePro {
     // Declare everything
     final GetSparkSession getSparkSession = new GetSparkSession();
     final GetDatasetFromCsv getDatasetFromCsv = new GetDatasetFromCsv();
-    final WriterFactory writerFactory = new WriterFactory();
+    final WriterInterface writer = new CsvWriter();
 
     // Setup
     final SparkSession sparkSession = getSparkSession.get();
     final Dataset<Row> originalDataset = getDatasetFromCsv.apply(sparkSession, args[0]);
 
-    writerFactory.accept(originalDataset
-    .withColumn("Prep Columns ->", lit("----->"))
-        .withColumn("created_date", to_date(col("created at")))
-        .withColumn("Starting here ->", lit("--------------->"))
-        .withColumn("Activity", col("side"))
-        .withColumn("PricePerCoin", col("price"))
-        .withColumn("Time", col("created_date"))
-        .withColumn("Date", regexp_replace(to_timestamp(col("created_date")), "T", " "))
-        .withColumn("Unix", unix_timestamp(col("created_date")))
-        .withColumn("Order", abs(col("total")))
-        .withColumn("Amount", col("size"))
+    writer.accept(originalDataset
+            .withColumn("Prep Columns ->", lit("----->"))
+            .withColumn("created_date", to_date(col("created at")))
+            .withColumn("Starting here ->", lit("--------------->"))
+            .withColumn("Activity", col("side"))
+            .withColumn("PricePerCoin", col("price"))
+            .withColumn("Time", col("created_date"))
+            .withColumn("Date", regexp_replace(to_timestamp(col("created_date")), "T", " "))
+            .withColumn("Unix", unix_timestamp(col("created_date")))
+            .withColumn("Order", abs(col("total")))
+            .withColumn("Amount", col("size"))
         .withColumn("Coin", col("size unit"))
         .withColumn("Source", lit("Coinbase Pro"))
         .withColumn("FormatName", lit("Coinbase Pro"))
