@@ -36,7 +36,7 @@ import static org.apache.spark.sql.functions.sum;
 import static org.apache.spark.sql.functions.to_date;
 import static org.apache.spark.sql.functions.year;
 
-import com.apache.spark.stuff.tpEnergyLink.transformers.GetPlugIdAndNameDataset;
+import com.apache.spark.stuff.tpEnergyLink.transformers.PlugIdAndNameTransformer;
 import com.apache.spark.stuff.functions.writers.CsvWriter;
 import com.apache.spark.stuff.functions.readers.GetDatasetFromCsv;
 import com.apache.spark.stuff.functions.readers.GetDatasetFromJsonMultilineRecursive;
@@ -79,10 +79,10 @@ public class TpEnergyLinkDayToDayApp {
 
     // Setup
     final SparkSession sparkSession = getSparkSession.get();
-    final GetPlugIdAndNameDataset getPlugIdAndNameDataset = new GetPlugIdAndNameDataset(sparkSession);
+    final PlugIdAndNameTransformer plugIdAndNameTransformer = new PlugIdAndNameTransformer(sparkSession);
 
     // Load the files
-    final Dataset<Row> pluginIdAndNameDS = getPlugIdAndNameDataset.get();
+    final Dataset<Row> pluginIdAndNameDS = plugIdAndNameTransformer.get();
     final Dataset<Row> ravenDS = getDatasetFromCsv.apply(sparkSession, pathToRvnLog)
         .withColumn(RVN_CREATED_DATE, to_date(col(RVN_SOURCE_DATE)))
         .withColumn(RVN_CREATED_UNIQUE_ID, concat(col(RVN_CREATED_DATE), lit('_'), col(RVN_SOURCE_ID)))
